@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub API Request Count</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7fc;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .count {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4caf50;
+        }
+        .reset-time {
+            font-size: 16px;
+            color: #888;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GitHub API Request Count</h1>
+        <p>Remaining requests: <span class="count" id="remaining-requests">Loading...</span></p>
+        <p class="reset-time" id="reset-time"></p>
+        <p id="error-message" class="error"></p>
+    </div>
+
+    <script>
+        // GitHub API rate limit URL
+        const rateLimitUrl = 'https://api.github.com/rate_limit';
+
+        // Function to update the request count
+        function updateRequestCount() {
+            fetch(rateLimitUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.resources && data.resources.core) {
+                        const remainingRequests = data.resources.core.remaining;
+                        const resetTime = data.resources.core.reset;
+                        const resetTimeFormatted = new Date(resetTime * 1000).toLocaleString();
+
+                        // Update UI elements
+                        document.getElementById('remaining-requests').textContent = remainingRequests;
+                        document.getElementById('reset-time').textContent = `Rate limit resets at: ${resetTimeFormatted}`;
+
+                        // Hide error message if the data is valid
+                        document.getElementById('error-message').textContent = '';
+                    } else {
+                        showError('Error fetching data from GitHub API.');
+                    }
+                })
+                .catch(() => {
+                    showError('Error fetching data from GitHub API.');
+                });
+        }
+
+        // Function to display an error message
+        function showError(message) {
+            document.getElementById('error-message').textContent = message;
+        }
+
+        // Update every 10 seconds
+        setInterval(updateRequestCount, 10000);
+        // Initial update when the page loads
+        updateRequestCount();
+    </script>
+</body>
+</html>
