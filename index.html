@@ -15,13 +15,29 @@
             font-weight: bold;
             color: green;
         }
+        .refresh-count {
+            font-size: 1.5rem;
+            color: blue;
+        }
     </style>
 </head>
 <body>
     <h1>GitHub API Request Count</h1>
     <div id="requestCount" class="request-count">Loading...</div>
+    <div id="refreshCount" class="refresh-count">Refresh Count: 0</div>
 
     <script>
+        // This will get the current refresh count from localStorage, or default to 0
+        let refreshCount = localStorage.getItem('refreshCount') || 0;
+        refreshCount = parseInt(refreshCount);
+
+        // Update the refresh count and store it in localStorage
+        refreshCount += 1;
+        localStorage.setItem('refreshCount', refreshCount);
+
+        // Display the refresh count on the page
+        document.getElementById('refreshCount').textContent = `Page Refresh Count: ${refreshCount}`;
+
         async function fetchRequestCount() {
             try {
                 const response = await fetch('https://api.github.com/rate_limit');
